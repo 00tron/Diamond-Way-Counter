@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { LucideHome, LucideSettings, LucideHistory, LucideSparkles, LucidePlus, LucideCheckCircle2, LucideRotateCcw } from 'lucide-react';
+import { Home, Settings, History, Sparkles, Plus, CheckCircle2, RotateCcw } from 'lucide-react';
 import { UserProgress, MantraSession } from './types';
 import CircularProgress from './components/CircularProgress';
 import SessionSetup from './components/SessionSetup';
@@ -50,15 +50,17 @@ const App: React.FC = () => {
     
     // Fetch AI insight for the session
     setIsLoadingInsight(true);
-    setAiInsight(null); // Reset previous insight
+    setAiInsight(null); 
     
     getMantraInsight(mantra)
-      .then((insight: string) => {
-        setAiInsight(insight);
+      .then((insight) => {
+        const validInsight: string = insight || "May your practice be fruitful.";
+        setAiInsight(validInsight);
         setIsLoadingInsight(false);
       })
       .catch((err) => {
         console.error(err);
+        setAiInsight("The path to mindfulness is built one mantra at a time.");
         setIsLoadingInsight(false);
       });
   };
@@ -87,18 +89,16 @@ const App: React.FC = () => {
 
   return (
     <div className="max-w-md mx-auto min-h-screen flex flex-col relative pb-24">
-      {/* Header */}
       <header className="p-6 flex justify-between items-center bg-transparent">
         <div>
           <h2 className="text-xs uppercase tracking-widest text-stone-400 font-semibold">Current Path</h2>
           <p className="font-serif text-lg font-bold text-stone-800">{progress.activeMantra}</p>
         </div>
         <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-          <LucideSparkles size={20} />
+          <Sparkles size={20} />
         </div>
       </header>
 
-      {/* Main Content Area */}
       <main className="flex-grow px-6">
         {view === 'home' && (
           <div className="space-y-8 animate-in fade-in duration-500">
@@ -124,7 +124,7 @@ const App: React.FC = () => {
               className="w-full p-6 bg-white border border-stone-100 rounded-[2rem] shadow-sm flex items-center gap-4 group hover:border-emerald-200 transition-all active:scale-95"
             >
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <LucidePlus size={24} />
+                <Plus size={24} />
               </div>
               <div className="text-left">
                 <p className="font-semibold text-stone-800">New Session</p>
@@ -191,7 +191,7 @@ const App: React.FC = () => {
               {isSessionComplete ? (
                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
                   <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl flex items-center gap-3 text-emerald-800">
-                    <LucideCheckCircle2 className="shrink-0" />
+                    <CheckCircle2 className="shrink-0" />
                     <p className="text-sm font-medium">Session complete. May this merit benefit all beings.</p>
                   </div>
                   <button 
@@ -208,7 +208,7 @@ const App: React.FC = () => {
                     onClick={() => setView('home')} 
                     className="text-stone-400 text-xs font-medium uppercase tracking-widest flex items-center justify-center gap-1 mx-auto"
                   >
-                    <LucideRotateCcw size={14} /> Cancel Session
+                    <RotateCcw size={14} /> Cancel Session
                   </button>
                 </div>
               )}
@@ -216,7 +216,7 @@ const App: React.FC = () => {
               {(isLoadingInsight || aiInsight) && !isSessionComplete && (
                 <div className="glass p-5 rounded-3xl border-stone-100 mt-8 animate-in fade-in duration-1000">
                   <div className="flex items-center gap-2 mb-2 text-emerald-600">
-                    <LucideSparkles size={16} />
+                    <Sparkles size={16} />
                     <span className="text-xs font-bold uppercase tracking-tight">Wisdom</span>
                   </div>
                   {isLoadingInsight ? (
@@ -236,7 +236,7 @@ const App: React.FC = () => {
           <div className="space-y-6 animate-in slide-in-from-right duration-300 pb-10">
             <div className="flex items-center gap-4">
               <button onClick={() => setView('home')} className="p-2 -ml-2 text-stone-400">
-                <LucideHistory size={24} className="rotate-180" />
+                <History size={24} className="rotate-180" />
               </button>
               <h2 className="text-2xl font-serif font-bold text-stone-800">Your Journey</h2>
             </div>
@@ -257,7 +257,7 @@ const App: React.FC = () => {
                 <div key={session.id} className="bg-white border border-stone-50 p-4 rounded-3xl flex justify-between items-center shadow-sm">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-stone-50 flex items-center justify-center text-stone-400">
-                      <LucideCheckCircle2 size={20} />
+                      <CheckCircle2 size={20} />
                     </div>
                     <div>
                       <p className="font-semibold text-stone-800">{session.mantraName}</p>
@@ -280,7 +280,7 @@ const App: React.FC = () => {
             <h2 className="text-2xl font-serif font-bold text-stone-800">Mantra Explorer</h2>
             <p className="text-stone-500 text-sm">Use AI to discover new mantras for your specific spiritual goals.</p>
             <div className="glass p-6 rounded-[2rem] text-center border-emerald-100">
-              <LucideSparkles className="mx-auto text-emerald-500 mb-4" size={32} />
+              <Sparkles className="mx-auto text-emerald-500 mb-4" size={32} />
               <p className="text-stone-600 mb-6">Which state of mind are you seeking today?</p>
               <div className="grid grid-cols-2 gap-3">
                 {['Peace', 'Prosperity', 'Protection', 'Wisdom', 'Healing', 'Compassion'].map(intent => (
@@ -297,31 +297,30 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* Navigation Bar */}
       <nav className="fixed bottom-6 left-6 right-6 h-16 glass rounded-full flex items-center justify-around shadow-xl border-white/40 z-50">
         <button 
           onClick={() => setView('home')}
           className={`p-3 rounded-full transition-all ${view === 'home' ? 'bg-stone-800 text-white shadow-md' : 'text-stone-400 hover:text-stone-600'}`}
         >
-          <LucideHome size={22} />
+          <Home size={22} />
         </button>
         <button 
           onClick={() => setView('ai')}
           className={`p-3 rounded-full transition-all ${view === 'ai' ? 'bg-stone-800 text-white shadow-md' : 'text-stone-400 hover:text-stone-600'}`}
         >
-          <LucideSparkles size={22} />
+          <Sparkles size={22} />
         </button>
         <button 
           onClick={() => setView('history')}
           className={`p-3 rounded-full transition-all ${view === 'history' ? 'bg-stone-800 text-white shadow-md' : 'text-stone-400 hover:text-stone-600'}`}
         >
-          <LucideHistory size={22} />
+          <History size={22} />
         </button>
         <button 
           onClick={() => {}} 
           className="p-3 rounded-full text-stone-400 hover:text-stone-600 transition-all"
         >
-          <LucideSettings size={22} />
+          <Settings size={22} />
         </button>
       </nav>
     </div>
