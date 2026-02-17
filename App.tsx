@@ -46,8 +46,10 @@ const App: React.FC = () => {
     
     // Fetch AI insight for the session
     setIsLoadingInsight(true);
-    getMantraInsight(mantra).then(insight => {
+    getMantraInsight(mantra).then((insight: string) => {
       setAiInsight(insight);
+      setIsLoadingInsight(false);
+    }).catch(() => {
       setIsLoadingInsight(false);
     });
   };

@@ -3,7 +3,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-export const getMantraInsight = async (mantraName: string) => {
+export const getMantraInsight = async (mantraName: string): Promise<string> => {
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
@@ -12,7 +12,7 @@ export const getMantraInsight = async (mantraName: string) => {
         temperature: 0.7,
       }
     });
-    return response.text;
+    return response.text ?? "The path to mindfulness is built one breath, one mantra at a time.";
   } catch (error) {
     console.error("Gemini Error:", error);
     return "The path to mindfulness is built one breath, one mantra at a time.";
@@ -40,7 +40,11 @@ export const suggestMantra = async (intent: string) => {
         }
       }
     });
-    return JSON.parse(response.text.trim());
+    const text = response.text;
+    if (!text) {
+      throw new Error("No response text received from Gemini");
+    }
+    return JSON.parse(text.trim());
   } catch (error) {
     console.error("Gemini Error:", error);
     return [
