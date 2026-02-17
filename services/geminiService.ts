@@ -12,7 +12,14 @@ export const getMantraInsight = async (mantraName: string): Promise<string> => {
         temperature: 0.7,
       }
     });
-    return response.text ?? "The path to mindfulness is built one breath, one mantra at a time.";
+    
+    // Explicitly handle the getter to satisfy strict TS rules
+    const text = response.text;
+    if (typeof text === 'string' && text.length > 0) {
+      return text;
+    }
+    
+    return "The path to mindfulness is built one breath, one mantra at a time.";
   } catch (error) {
     console.error("Gemini Error:", error);
     return "The path to mindfulness is built one breath, one mantra at a time.";
@@ -40,10 +47,12 @@ export const suggestMantra = async (intent: string) => {
         }
       }
     });
+    
     const text = response.text;
     if (!text) {
       throw new Error("No response text received from Gemini");
     }
+    
     return JSON.parse(text.trim());
   } catch (error) {
     console.error("Gemini Error:", error);

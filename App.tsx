@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LucideHome, LucideSettings, LucideHistory, LucideSparkles, LucidePlus, LucideCheckCircle2, LucideRotateCcw } from 'lucide-react';
 import { UserProgress, MantraSession } from './types';
 import CircularProgress from './components/CircularProgress';
@@ -12,7 +12,11 @@ const App: React.FC = () => {
   const [view, setView] = useState<'home' | 'session' | 'history' | 'setup' | 'ai'>('home');
   const [progress, setProgress] = useState<UserProgress>(() => {
     const saved = localStorage.getItem('mantra_progress');
-    return saved ? JSON.parse(saved) : { totalCount: 0, sessions: [], activeMantra: "Om Mani Padme Hum" };
+    try {
+      return saved ? JSON.parse(saved) : { totalCount: 0, sessions: [], activeMantra: "Om Mani Padme Hum" };
+    } catch {
+      return { totalCount: 0, sessions: [], activeMantra: "Om Mani Padme Hum" };
+    }
   });
 
   const [sessionCount, setSessionCount] = useState(0);
@@ -28,13 +32,13 @@ const App: React.FC = () => {
   const handleIncrement = () => {
     if (isSessionComplete) return;
     
-    const newCount = sessionCount + 1;
-    setSessionCount(newCount);
-    
-    if (newCount >= sessionTarget) {
-      setIsSessionComplete(true);
-      // Haptic feedback simulation or sound could go here
-    }
+    setSessionCount(prev => {
+      const next = prev + 1;
+      if (next >= sessionTarget) {
+        setIsSessionComplete(true);
+      }
+      return next;
+    });
   };
 
   const handleStartSession = (target: number, mantra: string) => {
@@ -46,12 +50,17 @@ const App: React.FC = () => {
     
     // Fetch AI insight for the session
     setIsLoadingInsight(true);
-    getMantraInsight(mantra).then((insight: string) => {
-      setAiInsight(insight);
-      setIsLoadingInsight(false);
-    }).catch(() => {
-      setIsLoadingInsight(false);
-    });
+    setAiInsight(null); // Reset previous insight
+    
+    getMantraInsight(mantra)
+      .then((insight: string) => {
+        setAiInsight(insight);
+        setIsLoadingInsight(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setIsLoadingInsight(false);
+      });
   };
 
   const saveSession = () => {
@@ -71,6 +80,7 @@ const App: React.FC = () => {
     setView('home');
     setSessionCount(0);
     setIsSessionComplete(false);
+    setAiInsight(null);
   };
 
   const totalProgressPercent = Math.min((progress.totalCount / TOTAL_GOAL) * 100, 100);
@@ -203,13 +213,19 @@ const App: React.FC = () => {
                 </div>
               )}
 
-              {aiInsight && !isSessionComplete && (
+              {(isLoadingInsight || aiInsight) && !isSessionComplete && (
                 <div className="glass p-5 rounded-3xl border-stone-100 mt-8 animate-in fade-in duration-1000">
                   <div className="flex items-center gap-2 mb-2 text-emerald-600">
                     <LucideSparkles size={16} />
                     <span className="text-xs font-bold uppercase tracking-tight">Wisdom</span>
                   </div>
-                  <p className="text-sm text-stone-600 italic leading-relaxed">"{aiInsight}"</p>
+                  {isLoadingInsight ? (
+                    <div className="h-12 flex items-center justify-center">
+                      <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-stone-600 italic leading-relaxed">"{aiInsight}"</p>
+                  )}
                 </div>
               )}
             </div>
@@ -302,7 +318,7 @@ const App: React.FC = () => {
           <LucideHistory size={22} />
         </button>
         <button 
-          onClick={() => {}} // Could be a general settings or about page
+          onClick={() => {}} 
           className="p-3 rounded-full text-stone-400 hover:text-stone-600 transition-all"
         >
           <LucideSettings size={22} />
